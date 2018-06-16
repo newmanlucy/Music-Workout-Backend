@@ -48,8 +48,13 @@ def users():
 
 @app.route("/user/<username>", methods=["GET", "DELETE"])
 def user(username):
+
     if request.method == "GET":
-        pass
+        try:
+            user = get_user(username)
+            return get_http_response(user, 200)
+        except: 
+            
     elif request.method == "DELETE":
         pass
 

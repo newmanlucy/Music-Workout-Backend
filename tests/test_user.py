@@ -28,8 +28,31 @@ class TestUser(unittest.TestCase):
 
 
     # Test getting users
+    
+    def test_get_user_not_there(self):
+        delete_user("harrypotter")
+        r = get_user("harrypotter")
+        self.assertEqual(r.status_code, 404)
+
+    def test_get_user_success(self):
+        post_user("harrypotter")
+        r = get_user("harrypotter")
+        self.assertEqual(r.status_code, 200)
+
 
     # Test deleting users
+    
+    def test_delete_user_not_there(self):
+        delete_user("rachel")
+        delete_user("emily")
+        r = delete_user("emily")
+        self.assertEqual("r.status_code", 404)
+
+    def test_delete_user_success(self):
+        add_user("lindsey")
+        r = delete_user("lindsey")
+        self.assertEqual(r.status_code, 404)
+
 
 if __name__ == '__main__':
     unittest.main()

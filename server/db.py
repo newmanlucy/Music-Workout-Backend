@@ -17,11 +17,12 @@ def open_operate_close(operation):
 
     # perform the operation
     ret = operation(cur)
+    count = cur.rowcount
 
     # close the connection
     conn.commit()
     conn.close()
-    return ret
+    return ret, count
 
 def op_execute_command(cur, cmd):
     """
@@ -74,14 +75,10 @@ def show_rows(table):
     open_operate_close(lambda cur: op_show_rows(cur, table))
 
 # List key facts about the database:
-# - rowcount
 # - tables
 # - table columns
 
 def op_check_db(cur):
-    numrows = cur.rowcount
-    print("numrows: %d" % numrows)
-
     cur.execute("SHOW TABLES")
     tables = cur.fetchall()
     for ret_list in tables:
@@ -151,7 +148,7 @@ def op_get_user(cur, username):
     return user
 
 def get_user(username):
-    user = open_operate_close(lambda cur: op_get_user(cur, username))
+    user, count = open_operate_close(lambda cur: op_get_user(cur, username))
     return user
 
 
@@ -162,8 +159,8 @@ def op_delete_user(cur, username):
     cmd = "DELETE FROM users WHERE username = '%s'" % username
     op_execute_command(cur, cmd)
 
-def delete_user(cur, username):
-    open_operate_close(lambda cur: op_delete_user(cur, username))
+def delete_user(username):
+    return open_operate_close(lambda cur: op_delete_user(cur, username))
 
 
 # TODO:
@@ -178,5 +175,7 @@ def delete_user(cur, username):
 
 if __name__ == '__main__':
     check_db()
-
-    # get_user("cho yin")
+    n = delete_user("george")
+    print("n: %d" % n)
+    choyin = get_user("cho yin")
+    print(choyin)
