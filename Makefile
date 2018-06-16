@@ -1,4 +1,4 @@
-venv/bin/python:
+setup:
 	virtualenv --python=python3 venv
 	venv/bin/pip install -r requirements.txt
 
@@ -8,8 +8,8 @@ run:
 db: 
 	venv/bin/python -m server.db
 
-test: clean venv/bin/python
-	@echo "no tests added yet"
+test-one:
+	venv/bin/python -m tests.test_$(test)
 
 clean:
 	rm -rf venv

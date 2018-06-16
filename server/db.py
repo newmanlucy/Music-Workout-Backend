@@ -1,5 +1,5 @@
 import MySQLdb
-
+import sys
 
 # Helper functions for dealing with the database
 
@@ -16,17 +16,34 @@ def open_operate_close(operation):
     cur.execute("USE music_workout")
 
     # perform the operation
-    operation(cur)
+    ret = operation(cur)
 
     # close the connection
     conn.commit()
     conn.close()
+    return ret
 
 def op_execute_command(cur, cmd):
     """
     Execute a command
     """
     cur.execute(cmd)
+
+def fetchonedict(cur):
+    """
+    return one result in dictionary
+    """
+    data = cur.fetchone()
+    if data is None:
+        return None
+    desc = cur.description
+
+    ret = {}
+
+    for (name, value) in zip(desc, data):
+        ret[name[0]] = value
+
+    return ret
 
 
 # Show columns in a table
@@ -116,12 +133,37 @@ def op_add_user(cur, username, age):
         INSERT INTO users 
             (username, age)
         VALUES
-            ('%s', %d) 
+            ('%s', %s) 
         """ % (username, age)
     op_execute_command(cur, cmd)
 
+
 def add_user(username, age):
     open_operate_close(lambda cur: op_add_user(cur, username, age))
+
+
+# Get a user from the database by username
+
+def op_get_user(cur, username):
+    cmd = "SELECT * FROM users WHERE username = '%s'" % username
+    op_execute_command(cur, cmd)
+    user = fetchonedict(cur)
+    return user
+
+def get_user(username):
+    user = open_operate_close(lambda cur: op_get_user(cur, username))
+    return user
+
+
+# Delete a user from the database
+
+def op_delete_user(cur, username):
+    # TODO: delete associations with user once those are added
+    cmd = "DELETE FROM users WHERE username = '%s'" % username
+    op_execute_command(cur, cmd)
+
+def delete_user(cur, username):
+    open_operate_close(lambda cur: op_delete_user(cur, username))
 
 
 # TODO:
@@ -135,5 +177,6 @@ def add_user(username, age):
 
 
 if __name__ == '__main__':
-    add_user("cho yin", 21)
     check_db()
+
+    # get_user("cho yin")
