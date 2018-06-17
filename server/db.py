@@ -94,18 +94,38 @@ def check_db():
     open_operate_close(op_check_db)
 
 
-# Create user table
+# Create users table
 
 def op_create_users_table(cur):
     cmd = """
-        CREATE TABLE users (
-            user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            username UNIQUE VARCHAR(50)
-        );
-        """
+        CREATE TABLE `users` (
+        `user_id` int(11) NOT NULL AUTO_INCREMENT,
+        `username` varchar(50) DEFAULT NULL,
+        `age` int(11) DEFAULT NULL,
+        PRIMARY KEY (`user_id`),
+        UNIQUE KEY `username` (`username`)
+    );"""
     op_execute_command(cur, cmd)
 
 def create_users_table():
+    open_operate_close(op_create_users_table)
+
+
+# Create patterns table
+def op_create_patterns_table(cur):
+    cmd = """
+        CREATE TABLE `patterns` (
+        `pattern_id` int(11) NOT NULL AUTO_INCREMENT,
+        `user_id` int(11) DEFAULT NULL,
+        `pattern_vector` varchar(258) DEFAULT NULL,
+        `def` tinyint(1) DEFAULT NULL,
+        PRIMARY KEY (`pattern_id`),
+        KEY `user_id` (`user_id`),
+        CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
+    );"""
+    op_execute_command(cur, cmd)
+
+def create_patterns_table():
     open_operate_close(op_create_users_table)
 
 
@@ -131,14 +151,18 @@ def op_add_user(cur, username, age):
         INSERT INTO users 
             (username, age)
         VALUES
-            ('%s', %s) 
+            ('%s', %s)
         """ % (username, age)
-    op_execute_command(cur, cmd)
+    cur.execute(cmd)
+    cmd = "SELECT LAST_INSERT_ID()"
+    cur.execute(cmd)
+    user_id = cur.fetchone()
+    return user_id[0]
 
 
 def add_user(username, age):
-    open_operate_close(lambda cur: op_add_user(cur, username, age))
-
+    user_id, count = open_operate_close(lambda cur: op_add_user(cur, username, age))
+    return user_id
 
 # Get a user from the database by username
 
@@ -216,6 +240,8 @@ def get_patterns(user_id):
 
 if __name__ == '__main__':
     check_db()
-    patterns, pattern_count = get_patterns(1)
-    for pattern in patterns:
-        print("  %s" % json.dumps(pattern))
+    # patterns, pattern_count = get_patterns(1)
+    # for pattern in patterns:
+    #     print("  %s" % json.dumps(pattern))
+
+    print(get_user("harrypotter"))
