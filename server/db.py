@@ -47,7 +47,6 @@ def fetchonedict(cur):
 
     return ret
 
-
 # Show columns in a table
 
 def op_show_columns(cur, table):
@@ -126,8 +125,26 @@ def op_create_patterns_table(cur):
     op_execute_command(cur, cmd)
 
 def create_patterns_table():
-    open_operate_close(op_create_users_table)
+    open_operate_close(op_create_patterns_table)
 
+# Create workout-settings table
+def op_create_workouts_table(cur):
+    # id, pattern_id, date, min, max, duration, user_id
+    cmd = """
+          CREATE TABLE `workouts` (
+          `workout_id` int(11) NOT NULL AUTO_INCREMENT,
+          `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+          `min_hr` decimal(3,2) DEFAULT NULL,
+          `max_hr` decimal(3,2) DEFAULT NULL,
+          `duration` int(11) DEFAULT NULL,
+          `pattern_id` int(11) DEFAULT NULL,
+          `users_id_wk` int(11) DEFAULT NULL,
+          PRIMARY KEY (`workout_id`),
+          KEY `pattern_id` (`pattern_id`),
+          KEY `users_id_wk` (`users_id_wk`),
+          CONSTRAINT `pattern_id` FOREIGN KEY (`pattern_id`) REFERENCES `patterns` (`pattern_id`),
+          CONSTRAINT `users_id_wk` FOREIGN KEY (`users_id_wk`) REFERENCES `users` (`user_id`)
+    );"""
 
 # Add a column to a table
 
@@ -148,7 +165,7 @@ def add_column(table, col_name, col_type, after=None):
 
 def op_add_user(cur, username, age):
     cmd = """
-        INSERT INTO users 
+        INSERT INTO users
             (username, age)
         VALUES
             ('%s', %s)
@@ -228,6 +245,46 @@ def op_get_patterns(cur, user_id):
 def get_patterns(user_id):
     return open_operate_close(lambda cur: op_get_patterns(cur, user_id))
 
+# Add a workout-setting
+
+def op_add_workout(cur, pattern_id, user_id, min_hr, max_hr, duration):
+    cmd = """
+        INSERT INTO workouts
+            (min_hr, max_hr, duration, pattern_id, user_id)
+        VALUES
+            (%f, %f, %d, %d, %d)
+    """ % (min_hr, max_hr, duration, pattern_id, user_id)
+    op_execute_command(cur, cmd)
+
+def add_workout(pattern_id, min_hr=0.4, max_hr=0.6, duration):
+    return open_operate_close(lambda cur: op_add_pattern(cur, pattern_id, user_id, min_hr, max_hr, duration))
+
+# Remove a workout-setting
+
+def op_delete_workout(cur, workout_id):
+    cmd = "DELETE FROM workouts WHERE workout_id = %d" % workout_id
+    op_execute_command(cur, cmd)
+
+def delete_workout(workout_id):
+    return open_operate_close(lambda cur: op_delete_user(cur, workout_id))
+
+# Get workout settings from user
+
+def op_get_workouts(cur, user_id):
+    cmd = """
+        SELECT * FROM workouts
+        WHERE user_id = %d
+    """ % user_id
+    cur.execute(cmd)
+    workouts = cur.fetchall()
+    return workouts
+
+def get_workouts(user_id):
+    return open_operate_close(lambda cur: op_get_patterns(cur, user_id))
+
+
+
+
 # TODO:
 # - create other tables (can use mysql directly)
 # - add music, add music combination, add workout, add workout pattern
@@ -244,4 +301,4 @@ if __name__ == '__main__':
     # for pattern in patterns:
     #     print("  %s" % json.dumps(pattern))
 
-    print(get_user("harrypotter"))
+    # print(get_user("harrypotter"))
