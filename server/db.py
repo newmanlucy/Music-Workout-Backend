@@ -99,7 +99,7 @@ def op_create_users_table(cur):
     cmd = """
         CREATE TABLE users (
             user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50)
+            username UNIQUE VARCHAR(50)
         );
         """
     op_execute_command(cur, cmd)
@@ -175,7 +175,7 @@ def delete_user(username):
 
 if __name__ == '__main__':
     check_db()
-    n = delete_user("george")
-    print("n: %d" % n)
+    # n = delete_user("george")
+    # print("n: %d" % n)
     choyin = get_user("cho yin")
     print(choyin)

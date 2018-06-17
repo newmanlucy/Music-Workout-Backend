@@ -23,6 +23,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(r.status_code, 400)
 
     def test_add_user_success(self):
+        delete_user("emily")
         r = post_user("emily", 17)
         self.assertEqual(r.status_code, 200)
 
@@ -32,26 +33,27 @@ class TestUser(unittest.TestCase):
     def test_get_user_not_there(self):
         delete_user("harrypotter")
         r = get_user("harrypotter")
+        client_log("HERE")
+        client_log(r.status_code)
         self.assertEqual(r.status_code, 404)
 
     def test_get_user_success(self):
-        post_user("harrypotter")
+        post_user("harrypotter", 11)
         r = get_user("harrypotter")
+        client_log(r.json())
         self.assertEqual(r.status_code, 200)
 
 
     # Test deleting users
     
     def test_delete_user_not_there(self):
-        delete_user("rachel")
-        delete_user("emily")
-        r = delete_user("emily")
-        self.assertEqual("r.status_code", 404)
+        r = delete_user("lauren")
+        self.assertEqual(r.status_code, 404)
 
     def test_delete_user_success(self):
-        add_user("lindsey")
+        post_user("lindsey", 12)
         r = delete_user("lindsey")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 200)
 
 
 if __name__ == '__main__':

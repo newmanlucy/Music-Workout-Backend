@@ -1,0 +1,5 @@
+__pycache__/
+server/__pycache__/
+server/user.py
+tests/__pycache__/
+venv/

@@ -5,7 +5,9 @@ from _mysql_exceptions import IntegrityError
 from util import server_log
 from server.db import add_user, get_user, delete_user
 
+
 app = Flask(__name__)
+
 
 def get_http_response(response_dict, status):
     """
@@ -22,8 +24,6 @@ def root():
 
 @app.route("/users", methods=["POST"])
 def users():
-    server_log(request.data)
-    server_log(str(request.form.get("username")))
     username = request.form.get("username")
     if username is None:
         message = {"message": "must provide a username"}
@@ -32,7 +32,6 @@ def users():
     if age is None:
         message = {"message": "must provide an age"}
         res = get_http_response(message, 400)
-        server_log("RES: " + str(res))
         return res
     try:
         add_user(username, age)
@@ -48,15 +47,26 @@ def users():
 
 @app.route("/user/<username>", methods=["GET", "DELETE"])
 def user(username):
-
     if request.method == "GET":
         try:
             user = get_user(username)
+            server_log("USER: %s" % str(user))
+            if user is None:
+                message = {"message": "user not found"}
+                return get_http_response(message, 404)
             return get_http_response(user, 200)
-        except: 
-            
+        except Exception as e:
+            message = {"message": "unexpected error: %s" % str(e)}
+            return get_http_response(message, 500)
     elif request.method == "DELETE":
-        pass
+        ret, count = delete_user(username)
+        if count == 0:
+            message = {"message": "user not found"}
+            return get_http_response(message, 404)
+        elif count == 1:
+            message = {"message": "success"}
+            return get_http_response(message, 200) 
+
 
 if __name__ == "__main__":
     app.run()
