@@ -17,7 +17,7 @@ def post_user(username, age):
     return make_post_request(route, data)
 
 def get_user(username):
-    route = "/user/%s" % username
+    route = "/users/%s" % username
     path = get_path(route)
     return requests.get(path)
 

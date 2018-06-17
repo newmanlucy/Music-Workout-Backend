@@ -45,7 +45,7 @@ def users():
         return get_http_response(message, 500)
 
 
-@app.route("/user/<username>", methods=["GET", "DELETE"])
+@app.route("/users/<username>", methods=["GET", "DELETE"])
 def user(username):
     if request.method == "GET":
         try:
@@ -67,6 +67,17 @@ def user(username):
             message = {"message": "success"}
             return get_http_response(message, 200) 
 
+@app.route("/patterns", methods=["POST"])
+def patterns():
+    pass
+
+@app.route("/patterns/<pattern_id>", methods=["DELETE"])
+def patterns_pattern(pattern_id):
+    pass
+
+@app.route("/patterns/user/<user_id>", methods=["GET"])
+def patterns_user(user_id):
+    pass
 
 if __name__ == "__main__":
     app.run()

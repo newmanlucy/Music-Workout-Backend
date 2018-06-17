@@ -1,5 +1,6 @@
 import MySQLdb
 import sys
+import json
 
 # Helper functions for dealing with the database
 
@@ -163,6 +164,46 @@ def delete_user(username):
     return open_operate_close(lambda cur: op_delete_user(cur, username))
 
 
+# Add a pattern to the database
+
+def op_add_pattern(cur, pattern, user_id, default):
+    cmd = """
+        INSERT INTO patterns
+            (user_id, def, pattern_vector)
+        VALUES
+            (%d, %d, '%s')
+    """ % (user_id, default, json.dumps(pattern))
+    op_execute_command(cur, cmd)
+
+def add_pattern(pattern, user_id, default=0):
+    return open_operate_close(lambda cur: op_add_pattern(cur, pattern, user_id, default))
+
+
+# Remove a pattern from the database
+
+def op_delete_pattern(cur, pattern_id):
+    cmd = "DELETE FROM patterns WHERE pattern_id = %d" % pattern_id
+    op_execute_command(cur, cmd)
+
+def delete_pattern(pattern_id):
+    return open_operate_close(lambda cur: op_delete_pattern(cur, pattern_id))
+
+
+# Get patterns for a user
+
+def op_get_patterns(cur, user_id):
+    cmd = """
+        SELECT * FROM patterns
+        WHERE user_id = %d
+        OR def = TRUE
+    """ % user_id
+    cur.execute(cmd)
+    patterns = cur.fetchall()
+    return patterns
+
+def get_patterns(user_id):
+    return open_operate_close(lambda cur: op_get_patterns(cur, user_id))
+
 # TODO:
 # - create other tables (can use mysql directly)
 # - add music, add music combination, add workout, add workout pattern
@@ -175,7 +216,6 @@ def delete_user(username):
 
 if __name__ == '__main__':
     check_db()
-    # n = delete_user("george")
-    # print("n: %d" % n)
-    choyin = get_user("cho yin")
-    print(choyin)
+    patterns, pattern_count = get_patterns(1)
+    for pattern in patterns:
+        print("  %s" % json.dumps(pattern))
