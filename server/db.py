@@ -247,7 +247,7 @@ def get_patterns(user_id):
 
 # Add a workout-setting
 
-def op_add_workout(cur, pattern_id, user_id, min_hr, max_hr, duration):
+def op_add_workout(cur, pattern_id, user_id, duration, min_hr, max_hr):
     cmd = """
         INSERT INTO workouts
             (min_hr, max_hr, duration, pattern_id, user_id)
@@ -256,8 +256,8 @@ def op_add_workout(cur, pattern_id, user_id, min_hr, max_hr, duration):
     """ % (min_hr, max_hr, duration, pattern_id, user_id)
     op_execute_command(cur, cmd)
 
-def add_workout(pattern_id, min_hr=0.4, max_hr=0.6, duration):
-    return open_operate_close(lambda cur: op_add_pattern(cur, pattern_id, user_id, min_hr, max_hr, duration))
+def add_workout(pattern_id, user_id, duration, min_hr=0.4, max_hr=0.6):
+    return open_operate_close(lambda cur: op_add_pattern(cur, pattern_id, user_id, duration, min_hr, max_hr))
 
 # Remove a workout-setting
 

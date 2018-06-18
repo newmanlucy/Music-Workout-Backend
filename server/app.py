@@ -79,5 +79,19 @@ def patterns_pattern(pattern_id):
 def patterns_user(user_id):
     pass
 
+# routes
+
+@app.route("/workouts", methods=["POST"])
+def workouts():
+    pass
+
+@app.route("/workouts/<workout_id>", methods=["DELETE"])
+def workouts_workout(workout_id):
+    pass
+
+@app.route("/workouts/user/<user_id>", methods=["GET"])
+def workouts_user(user_id):
+    pass
+
 if __name__ == "__main__":
     app.run()
