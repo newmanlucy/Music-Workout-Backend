@@ -5,6 +5,7 @@ from _mysql_exceptions import IntegrityError
 
 from util import server_log
 from server.db import add_user, get_user, delete_user
+from server.db import add_pattern, get_patterns_for_user, delete_pattern
 from server import app
 
 def get_http_response(response_dict, status):
@@ -30,11 +31,12 @@ def root():
 @app.route("/users", methods=["POST"])
 def users():
     username = request.form.get("username")
-    if username is None:
-        return get_http_err_response("must provide a username", 400)
     birthdate = request.form.get("birthdate")
-    if birthdate is None:
-        return get_http_err_response("must provide a birthdate", 400)
+    if None in [username, birthdate]:
+        return get_http_err_response(
+            "POST to /users must contain 'username' and 'birthdate'",
+            400
+            )
     user = add_user(username, birthdate)
     if user is None:
         return get_http_err_response("username must be unique", 400)
@@ -56,21 +58,42 @@ def user(username):
         else:
             return get_http_response(user.to_dict(), 200) 
 
+def str_to_bool(string):
+    string = string.lower()
+    if string == "false":
+        return False
+    elif string == "frue":
+        return True
+
 @app.route("/patterns", methods=["POST"])
 def patterns():
     user_id = request.form.get("user_id")
-    if user_id is None:
-        pass
     vector = request.form.get("vector")
     default = request.form.get("default")
+    if None in [user_id, vector, default]:
+        return get_http_err_response(
+            "POST to /patterns must contain 'user_id', 'vector', and 'default'",
+            400
+            )
+    default = str_to_bool(default)
+    if default is None:
+        return get_http_err_response(
+            "default must be a bool",
+            400)
+    pattern = add_pattern(user_id, vector, default)
+    return get_http_response(pattern.to_dict(), 200)
 
 @app.route("/patterns/<pattern_id>", methods=["DELETE"])
 def patterns_pattern(pattern_id):
-    pass
+    pattern = delete_pattern(pattern_id)
+    if pattern is None:
+        return get_http_err_response("Pattern %d not found" % pattern_id, 404)
+    return get_http_response(pattern, 200)
 
 @app.route("/patterns/user/<user_id>", methods=["GET"])
 def patterns_user(user_id):
-    pass
+    patterns = get_patterns_for_user(user_id)
+    return get_http_response(patterns, 200)
 
 if __name__ == "__main__":
     app.run()

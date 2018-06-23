@@ -24,8 +24,8 @@ def delete_user(username):
         db.session.commit()
     return user
 
-def add_pattern(user_id, pattern, default):
-    pattern = Pattern(user_id=user_id, default=default, vector=json.dumps(pattern))
+def add_pattern(user_id, vector, default):
+    pattern = Pattern(user_id=user_id, default=default, vector=json.dumps(vector))
     db.session.add(pattern)
     db.session.commit()
     return pattern
