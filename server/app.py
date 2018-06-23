@@ -1,16 +1,11 @@
-from flask import Flask, request, Response
-from flask_sqlalchemy import SQLAlchemy
+from flask import request, Response
 
 import json
 from _mysql_exceptions import IntegrityError
 
 from util import server_log
-# from server.db import add_user, get_user, delete_user
-
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root@localhost/music_workout"
-db = SQLAlchemy(app)
+from server.db import add_user, get_user, delete_user
+from server import app
 
 def get_http_response(response_dict, status):
     """
@@ -32,21 +27,16 @@ def users():
     if username is None:
         message = {"message": "must provide a username"}
         return get_http_response(message, 400)
-    age = request.form.get("age")
-    if age is None:
-        message = {"message": "must provide an age"}
+    birthdate = request.form.get("birthdate")
+    if birthdate is None:
+        message = {"message": "must provide a birthdate"}
         res = get_http_response(message, 400)
         return res
-    try:
-        server_log("HERE")
-        user_id = add_user(username, age)
-        server_log(str(user_id))
-        user = {"username": username, "age": age, "user_id": user_id}
-        server_log(user)
-        return get_http_response(user, 200)
-    except IntegrityError:
+    user = add_user(username, birthdate)
+    if user is None:
         message = {"message": "username must be unique"}
         return get_http_response(message, 400)
+    return get_http_response(user.to_dict(), 200)
 
 
 @app.route("/users/<username>", methods=["GET", "DELETE"])
@@ -57,14 +47,13 @@ def user(username):
         if user is None:
             message = {"message": "user not found"}
             return get_http_response(message, 404)
-        return get_http_response(user, 200)
+        return get_http_response(user.to_dict(), 200)
     elif request.method == "DELETE":
-        ret, count = delete_user(username)
-        print(("DELETE", ret, count))
-        if count == 0:
+        user = delete_user(username)
+        if user is None:
             message = {"message": "user not found"}
             return get_http_response(message, 404)
-        elif count == 1:
+        else:
             message = {"message": "success"}
             return get_http_response(message, 200) 
 

@@ -11,9 +11,9 @@ def make_post_request(route, data):
     r = requests.post(path, data=data)
     return r
 
-def post_user(username, age):
+def post_user(username, birthdate):
     route = "/users"
-    data = {"username": username, "age": age}
+    data = {"username": username, "birthdate": birthdate}
     return make_post_request(route, data)
 
 def get_user(username):

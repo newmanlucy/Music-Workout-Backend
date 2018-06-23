@@ -15,7 +15,6 @@ def open_operate_close(operation):
         db="music_workout")
     cur = conn.cursor()
     cur.execute("USE music_workout")
-    print('opened')
 
     # perform the operation
     ret = operation(cur)
@@ -23,7 +22,6 @@ def open_operate_close(operation):
 
     # close the connection
     conn.commit()
-    print('committed')
     conn.close()
     return ret, count
 
