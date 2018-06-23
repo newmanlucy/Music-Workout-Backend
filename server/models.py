@@ -23,10 +23,10 @@ class User(db.Model):
 
 class Pattern(db.Model):
     pattern_id = db.Column(db.Integer, primary_key=True)
-    default = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     vector = db.Column(db.String(258), nullable=False)
-
+    default = db.Column(db.Boolean)
+    
     def to_dict(self):
         return {
             "pattern_id": self.pattern_id,

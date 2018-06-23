@@ -15,6 +15,12 @@ def get_http_response(response_dict, status):
     server_log(response)
     return Response(response, status=status, mimetype='application/json')
 
+def get_err_dict(message):
+    return {"message": message}
+
+def get_http_err_response(message, status):
+    message = {"message": message}
+    return get_http_response(message, status)
 
 @app.route("/", methods=["GET"])
 def root():
@@ -25,17 +31,13 @@ def root():
 def users():
     username = request.form.get("username")
     if username is None:
-        message = {"message": "must provide a username"}
-        return get_http_response(message, 400)
+        return get_http_err_response("must provide a username", 400)
     birthdate = request.form.get("birthdate")
     if birthdate is None:
-        message = {"message": "must provide a birthdate"}
-        res = get_http_response(message, 400)
-        return res
+        return get_http_err_response("must provide a birthdate", 400)
     user = add_user(username, birthdate)
     if user is None:
-        message = {"message": "username must be unique"}
-        return get_http_response(message, 400)
+        return get_http_err_response("username must be unique", 400)
     return get_http_response(user.to_dict(), 200)
 
 
@@ -45,21 +47,22 @@ def user(username):
         user = get_user(username)
         server_log("USER: %s" % str(user))
         if user is None:
-            message = {"message": "user not found"}
-            return get_http_response(message, 404)
+            return get_http_err_response("user not found", 404)
         return get_http_response(user.to_dict(), 200)
     elif request.method == "DELETE":
         user = delete_user(username)
         if user is None:
-            message = {"message": "user not found"}
-            return get_http_response(message, 404)
+            return get_http_err_response("user not found", 404)
         else:
-            message = {"message": "success"}
-            return get_http_response(message, 200) 
+            return get_http_response(user.to_dict(), 200) 
 
 @app.route("/patterns", methods=["POST"])
 def patterns():
-    pass
+    user_id = request.form.get("user_id")
+    if user_id is None:
+        pass
+    vector = request.form.get("vector")
+    default = request.form.get("default")
 
 @app.route("/patterns/<pattern_id>", methods=["DELETE"])
 def patterns_pattern(pattern_id):
