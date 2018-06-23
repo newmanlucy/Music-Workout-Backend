@@ -22,6 +22,6 @@ def get_user(username):
     return requests.get(path)
 
 def delete_user(username):
-    route = "/user/%s" % username
+    route = "/users/%s" % username
     path = get_path(route)
     return requests.delete(path)
