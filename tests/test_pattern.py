@@ -8,7 +8,7 @@ class TestPattern(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         r1 = delete_user("lucy")
-        r2 = post_user("lucy", datetime.now())
+        r2 = post_user("lucy", "11/20/1996")
         print(r1)
         print(r2.json())
         cls.user_id = r2.json()["user_id"]
