@@ -8,10 +8,10 @@ class TestUser(unittest.TestCase):
 
     
     # Test adding users
-    test_time = datetime.now()
+    birthday = "11/20/1996"
 
     def test_add_user_no_username(self):
-        r = post_user(None, self.test_time)
+        r = post_user(None, self.birthday)
         self.assertEqual(r.status_code, 400)
 
     def test_add_user_no_bday(self):
@@ -19,13 +19,13 @@ class TestUser(unittest.TestCase):
         self.assertEqual(r.status_code, 400)
 
     def test_add_user_not_unique(self):
-        post_user("rachel", self.test_time)
+        post_user("rachel", self.birthday)
         r = post_user("rachel", datetime.now())
         self.assertEqual(r.status_code, 400)
 
     def test_add_user_success(self):
         delete_user("emily")
-        r = post_user("emily", self.test_time)
+        r = post_user("emily", self.birthday)
         client_log(r.json())
         self.assertEqual(r.status_code, 200)
 
@@ -38,7 +38,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(r.status_code, 404)
 
     def test_get_user_success(self):
-        post_user("francis", self.test_time)
+        post_user("francis", self.birthday)
         r = get_user("francis")
         self.assertEqual(r.status_code, 200)
 
@@ -50,7 +50,7 @@ class TestUser(unittest.TestCase):
         self.assertEqual(r.status_code, 404)
 
     def test_delete_user_success(self):
-        post_user("megan", self.test_time)
+        post_user("megan", self.birthday)
         r = delete_user("megan")
         self.assertEqual(r.status_code, 200)
 

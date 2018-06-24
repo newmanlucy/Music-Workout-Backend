@@ -4,9 +4,10 @@ import json
 from _mysql_exceptions import IntegrityError
 
 from util import server_log
+from server import app
 from server.db import add_user, get_user, delete_user
 from server.db import add_pattern, get_patterns_for_user, delete_pattern
-from server import app
+from server.forms import UserForm, PatternForm
 
 def get_http_response(response_dict, status):
     """
@@ -30,18 +31,21 @@ def root():
 
 @app.route("/users", methods=["POST"])
 def users():
-    username = request.form.get("username")
-    birthdate = request.form.get("birthdate")
-    if None in [username, birthdate]:
-        return get_http_err_response(
-            "POST to /users must contain 'username' and 'birthdate'",
-            400
-            )
-    user = add_user(username, birthdate)
-    if user is None:
-        return get_http_err_response("username must be unique", 400)
-    return get_http_response(user.to_dict(), 200)
-
+    form = UserForm()
+    server_log("Validating user form")
+    server_log(form.username.data)
+    server_log(request.form.get("birthdate"))
+    server_log(form.birthdate.data)
+    if form.validate_on_submit():
+        user = add_user(form.username.data, form.birthdate.data)
+        if user is None:
+            return get_http_err_response("username must be unique", 400)
+        return get_http_response(user.to_dict(), 200)
+    return get_http_err_response(
+        "POST to /users must contain 'username'(String) and 'birthdate'(DateTime)",
+        400
+        )
+    
 
 @app.route("/users/<username>", methods=["GET", "DELETE"])
 def user(username):
@@ -58,41 +62,37 @@ def user(username):
         else:
             return get_http_response(user.to_dict(), 200) 
 
-def str_to_bool(string):
-    string = string.lower()
-    if string == "false":
-        return False
-    elif string == "frue":
-        return True
 
 @app.route("/patterns", methods=["POST"])
 def patterns():
-    user_id = request.form.get("user_id")
-    vector = request.form.get("vector")
-    default = request.form.get("default")
-    if None in [user_id, vector, default]:
-        return get_http_err_response(
-            "POST to /patterns must contain 'user_id', 'vector', and 'default'",
-            400
-            )
-    default = str_to_bool(default)
-    if default is None:
-        return get_http_err_response(
-            "default must be a bool",
-            400)
-    pattern = add_pattern(user_id, vector, default)
-    return get_http_response(pattern.to_dict(), 200)
+    form = PatternForm()
+    if form.validate_on_submit():
+        pattern = add_pattern(form.user_id.data, form.vector.data, form.default.data)
+        return get_http_response(pattern.to_dict(), 200)
+    return get_http_err_response(
+        "POST to /patterns must contain 'user_id'(Integer), 'vector'(Array), and 'default'(Boolean)",
+        400
+        )
+
 
 @app.route("/patterns/<pattern_id>", methods=["DELETE"])
 def patterns_pattern(pattern_id):
+    try:
+        pattern_id = int(pattern_id)
+    except ValueError:
+        return get_http_err_response(
+            "Pattern must be an integer",
+            400
+            )
     pattern = delete_pattern(pattern_id)
     if pattern is None:
         return get_http_err_response("Pattern %d not found" % pattern_id, 404)
-    return get_http_response(pattern, 200)
+    return get_http_response(pattern.to_dict(), 200)
 
 @app.route("/patterns/user/<user_id>", methods=["GET"])
 def patterns_user(user_id):
     patterns = get_patterns_for_user(user_id)
+    patterns = list(map(lambda p: p.to_dict(), patterns))
     return get_http_response(patterns, 200)
 
 if __name__ == "__main__":

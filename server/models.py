@@ -9,6 +9,8 @@ class User(db.Model):
     birthdate = db.Column(db.DateTime, nullable=False)
     joindate = db.Column(db.DateTime, default=datetime.now())
 
+    patterns = db.relationship('Pattern', backref='user', cascade='delete')
+
     def to_dict(self):
         return {
             "user_id": self.user_id,
@@ -72,5 +74,5 @@ if __name__ == '__main__':
     # db.session.commit()
     # print(Workout.query.all())
 
-    joshua = User(username="george", birthdate=datetime.now())
-    print(joshua.to_dict())
+    # joshua = User(username="george", birthdate=datetime.now())
+    # print(joshua.to_dict())
