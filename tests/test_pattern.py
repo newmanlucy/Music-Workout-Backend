@@ -9,14 +9,13 @@ class TestPattern(unittest.TestCase):
     def setUpClass(cls):
         r1 = delete_user("lucy")
         r2 = post_user("lucy", "11/20/1996")
-        print(r1)
-        print(r2.json())
         cls.user_id = r2.json()["user_id"]
         cls.very_high_number = 10000000
 
     @classmethod
     def tearDownClass(cls):
         delete_user("lucy")
+
 
     # Test posting patterns
     def test_post_pattern_no_user_id(self):
@@ -56,8 +55,6 @@ class TestPattern(unittest.TestCase):
 
     def test_delete_pattern_success(self):
         r1 = post_pattern(self.user_id, [1,2,3], True)
-        print("r1")
-        print(r1.json())
         pattern_id = r1.json()["pattern_id"]
         r2 = delete_pattern(pattern_id)
         self.assertEqual(r2.status_code, 200)

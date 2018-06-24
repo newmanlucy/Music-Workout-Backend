@@ -26,7 +26,6 @@ class TestUser(unittest.TestCase):
     def test_add_user_success(self):
         delete_user("emily")
         r = post_user("emily", self.birthday)
-        client_log(r.json())
         self.assertEqual(r.status_code, 200)
 
 

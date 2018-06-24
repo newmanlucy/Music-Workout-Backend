@@ -14,7 +14,6 @@ def get_http_response(response_dict, status):
     return a response with the given data and status of type application/json
     """
     response = json.dumps(response_dict)
-    server_log(response)
     return Response(response, status=status, mimetype='application/json')
 
 def get_err_dict(message):
@@ -32,10 +31,6 @@ def root():
 @app.route("/users", methods=["POST"])
 def users():
     form = UserForm()
-    server_log("Validating user form")
-    server_log(form.username.data)
-    server_log(request.form.get("birthdate"))
-    server_log(form.birthdate.data)
     if form.validate_on_submit():
         user = add_user(form.username.data, form.birthdate.data)
         if user is None:
@@ -51,7 +46,6 @@ def users():
 def user(username):
     if request.method == "GET":
         user = get_user(username)
-        server_log("USER: %s" % str(user))
         if user is None:
             return get_http_err_response("user not found", 404)
         return get_http_response(user.to_dict(), 200)
